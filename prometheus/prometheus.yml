@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+
+scrape_configs:
+  - job_name: evalforge
+    metrics_path: /metrics
+    static_configs:
+      # When running via docker-compose, the API service is reachable as "evalforge".
+      # When running the API on the host, use host.docker.internal:8000 instead.
+      - targets: ["evalforge:8000"]
+        labels:
+          service: evalforge

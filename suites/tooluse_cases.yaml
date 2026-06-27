@@ -1,0 +1,65 @@
+# Agentic tool-use suite.
+# Each case provides a user prompt and the set of available tools, plus the
+# expected tool call (name + arguments).
+# Scored on: tool-selection accuracy + argument F1 (key/value overlap).
+suite: tooluse
+version: "1.0.0"
+description: "Agentic tool selection accuracy and argument extraction quality."
+tools:
+  - name: get_weather
+    description: "Get the current weather for a city."
+    parameters:
+      city: "string"
+      unit: "celsius|fahrenheit"
+  - name: send_email
+    description: "Send an email to a recipient."
+    parameters:
+      to: "string"
+      subject: "string"
+      body: "string"
+  - name: search_web
+    description: "Search the web for a query."
+    parameters:
+      query: "string"
+  - name: create_calendar_event
+    description: "Create a calendar event."
+    parameters:
+      title: "string"
+      date: "string"
+      time: "string"
+cases:
+  - id: tool-001
+    prompt: "What's the weather in Paris in celsius?"
+    expected_tool: get_weather
+    expected_args:
+      city: "Paris"
+      unit: "celsius"
+
+  - id: tool-002
+    prompt: "Email alice@example.com with subject 'Lunch' saying let's meet at noon."
+    expected_tool: send_email
+    expected_args:
+      to: "alice@example.com"
+      subject: "Lunch"
+      body: "let's meet at noon"
+
+  - id: tool-003
+    prompt: "Find recent papers about retrieval augmented generation."
+    expected_tool: search_web
+    expected_args:
+      query: "retrieval augmented generation papers"
+
+  - id: tool-004
+    prompt: "Put 'Dentist' on my calendar for 2026-07-01 at 09:00."
+    expected_tool: create_calendar_event
+    expected_args:
+      title: "Dentist"
+      date: "2026-07-01"
+      time: "09:00"
+
+  - id: tool-005
+    prompt: "How hot is it in Tokyo right now? Use fahrenheit."
+    expected_tool: get_weather
+    expected_args:
+      city: "Tokyo"
+      unit: "fahrenheit"

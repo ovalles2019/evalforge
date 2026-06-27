@@ -1,0 +1,65 @@
+# RAG groundedness suite.
+# Each case provides a question, retrieved context passages (each with an id),
+# and the expected answer + the context ids that should be cited.
+# Scored on: groundedness (LLM/heuristic judge) + citation overlap (F1 vs expected).
+suite: rag
+version: "1.0.0"
+description: "Retrieval-augmented generation groundedness and citation accuracy."
+cases:
+  - id: rag-001
+    question: "What is the capital of France and roughly how many people live there?"
+    context:
+      - id: c1
+        text: "Paris is the capital and most populous city of France."
+      - id: c2
+        text: "The population of the city of Paris proper is about 2.1 million."
+      - id: c3
+        text: "The Seine river flows through Paris."
+    expected_answer: "Paris is the capital of France, with about 2.1 million residents."
+    expected_citations: ["c1", "c2"]
+
+  - id: rag-002
+    question: "When was the Eiffel Tower completed and who designed it?"
+    context:
+      - id: c1
+        text: "The Eiffel Tower was completed in 1889 for the World's Fair."
+      - id: c2
+        text: "It was designed by the engineering company of Gustave Eiffel."
+      - id: c3
+        text: "The tower is located on the Champ de Mars in Paris."
+    expected_answer: "The Eiffel Tower was completed in 1889 and was designed by Gustave Eiffel's company."
+    expected_citations: ["c1", "c2"]
+
+  - id: rag-003
+    question: "What programming paradigm does Haskell use and is it statically typed?"
+    context:
+      - id: c1
+        text: "Haskell is a purely functional programming language."
+      - id: c2
+        text: "Haskell features a strong, static type system with type inference."
+    expected_answer: "Haskell is a purely functional language and is statically typed with type inference."
+    expected_citations: ["c1", "c2"]
+
+  - id: rag-004
+    question: "Does the provided context state the boiling point of water?"
+    context:
+      - id: c1
+        text: "Water is composed of two hydrogen atoms and one oxygen atom."
+      - id: c2
+        text: "Water is essential for life on Earth."
+    # Negative/abstention case: the answer is NOT in the context, so a grounded
+    # system should decline rather than hallucinate. No citations expected.
+    expected_answer: "The provided context does not state the boiling point of water."
+    expected_citations: []
+
+  - id: rag-005
+    question: "What is the speed of light and is it constant in a vacuum?"
+    context:
+      - id: c1
+        text: "The speed of light in a vacuum is approximately 299,792 kilometers per second."
+      - id: c2
+        text: "The speed of light in a vacuum is a universal physical constant."
+      - id: c3
+        text: "Light slows down when passing through media such as glass or water."
+    expected_answer: "The speed of light in a vacuum is about 299,792 km/s and is constant."
+    expected_citations: ["c1", "c2"]

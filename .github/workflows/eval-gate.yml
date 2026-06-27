@@ -1,0 +1,58 @@
+name: EvalForge CI Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  eval-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the runner can read git ref/sha metadata.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install EvalForge
+        run: pip install .
+
+      # Restore the results DB from cache so regression checks compare against
+      # the previous run's metrics (baseline). Falls back to a fresh DB on miss.
+      - name: Restore results store
+        uses: actions/cache@v4
+        with:
+          path: evalforge.db
+          key: evalforge-db-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            evalforge-db-${{ github.ref_name }}-
+            evalforge-db-
+
+      - name: Run eval + enforce gate
+        env:
+          # Swap these to point at a real endpoint:
+          #   EVALFORGE_TARGET: openai
+          #   EVALFORGE_TARGET_BASE_URL / _MODEL / _API_KEY (from secrets)
+          #   EVALFORGE_JUDGE: llm  (+ EVALFORGE_JUDGE_* )
+          EVALFORGE_TARGET: mock
+          EVALFORGE_JUDGE: heuristic
+        run: evalforge gate --junit reports/junit.xml
+
+      - name: Upload JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evalforge-junit
+          path: reports/junit.xml
+
+      - name: Publish test report
+        if: always()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: reports/junit.xml
+          fail_on_failure: false

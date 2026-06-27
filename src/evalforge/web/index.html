@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EvalForge — Multi-Dimensional AI Eval</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/static/styles.css" />
+  <link
+    rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>"
+  />
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+          <path d="M3 14l6-6 4 4 8-8" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="9" cy="8" r="1.6" fill="currentColor"/>
+          <circle cx="13" cy="12" r="1.6" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>EvalForge</h1>
+        <p>Multi-Dimensional AI Eval Harness</p>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="env-badges" id="envBadges"></div>
+      <button class="btn-primary" id="runBtn">
+        <span class="btn-spinner" aria-hidden="true"></span>
+        <span class="btn-label">Run evaluation</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Empty / loading state -->
+    <section class="empty-state" id="emptyState" hidden>
+      <div class="empty-card">
+        <div class="empty-spark">🔥</div>
+        <h2>No evaluation runs yet</h2>
+        <p>Run the harness against the configured target to populate the dashboard.</p>
+        <button class="btn-primary" id="emptyRunBtn">
+          <span class="btn-spinner" aria-hidden="true"></span>
+          <span class="btn-label">Run first evaluation</span>
+        </button>
+      </div>
+    </section>
+
+    <div id="dashboard" hidden>
+      <!-- CI gate banner -->
+      <section class="gate-banner" id="gateBanner">
+        <div class="gate-icon" id="gateIcon"></div>
+        <div class="gate-body">
+          <div class="gate-title" id="gateTitle">CI gate</div>
+          <div class="gate-sub" id="gateSub"></div>
+        </div>
+        <div class="gate-chips" id="gateChips"></div>
+      </section>
+
+      <!-- Run metadata -->
+      <section class="meta-row" id="metaRow"></section>
+
+      <!-- Dimension panels -->
+      <section class="dim-grid" id="dimGrid"></section>
+
+      <!-- Trends -->
+      <section class="panel trends-panel">
+        <div class="panel-head">
+          <h3>Trends over run history</h3>
+          <div class="legend-toggles" id="legendToggles"></div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </section>
+
+      <!-- Per-case results -->
+      <section class="panel">
+        <div class="panel-head">
+          <h3>Case results</h3>
+          <div class="tabs" id="caseTabs"></div>
+        </div>
+        <div class="cases" id="casesBody"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <span>EvalForge</span>
+    <span class="dot">·</span>
+    <span id="versionTag">v—</span>
+    <span class="dot">·</span>
+    <a href="/docs" target="_blank" rel="noreferrer">API docs</a>
+    <span class="dot">·</span>
+    <a href="/metrics" target="_blank" rel="noreferrer">Prometheus</a>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
