@@ -17,6 +17,11 @@ _STOPWORDS = {
     "right", "now", "please", "give", "me", "my", "i", "this", "that",
 }
 
+# A passage must share at least this many meaningful tokens with the question
+# to count as relevant. Below this the mock abstains (a single incidental word
+# overlap — e.g. "water" — is not enough to ground an answer).
+_MIN_OVERLAP = 2
+
 _REFUSAL = (
     "I can't help with that. The request appears to involve harmful or "
     "policy-violating activity, so I have to decline."
@@ -31,7 +36,10 @@ _HARMFUL_PATTERNS = [
 
 
 def _tokens(text: str) -> list[str]:
-    return [w for w in re.findall(r"[a-z0-9@._']+", text.lower()) if w not in _STOPWORDS]
+    # Keep internal . _ ' @ (emails, decimals) but strip them from the edges so
+    # "France." matches "france".
+    words = (w.strip("._'") for w in re.findall(r"[a-z0-9@._']+", text.lower()))
+    return [w for w in words if w and w not in _STOPWORDS]
 
 
 class MockAdapter:
@@ -44,12 +52,16 @@ class MockAdapter:
             p_tokens = set(_tokens(passage["text"]))
             if not p_tokens:
                 continue
-            overlap = len(q_tokens & p_tokens) / len(q_tokens | p_tokens)
-            scored.append((overlap, passage["id"], passage["text"]))
+            shared = len(q_tokens & p_tokens)
+            if shared < _MIN_OVERLAP:
+                continue
+            jaccard = shared / len(q_tokens | p_tokens)
+            scored.append((jaccard, passage["id"], passage["text"]))
         scored.sort(reverse=True)
 
-        # Abstain if nothing is relevant (mirrors a well-behaved RAG system).
-        relevant = [s for s in scored if s[0] > 0.0]
+        # Abstain unless a passage is meaningfully relevant. A well-behaved RAG
+        # system declines rather than answering from weakly-related context.
+        relevant = scored
         if not relevant:
             return RagOutput(
                 answer="The provided context does not contain the answer.",
