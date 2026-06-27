@@ -6,6 +6,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Allow the JUnit reporter to publish check runs / annotations.
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
   eval-gate:
     runs-on: ubuntu-latest
